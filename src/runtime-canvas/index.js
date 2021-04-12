@@ -52,6 +52,9 @@ const renderer = createRenderer({
       case 'texture':
         el.texture = Texture.from(nextValue);
         break;
+      case 'onClick':
+        el.on('pointertap', nextValue)
+        break;
       default:
         el[key] = nextValue;
         break;

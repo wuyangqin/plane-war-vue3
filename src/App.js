@@ -1,12 +1,33 @@
 // root component
 
 import StartPage from "./views/StartPage";
-import {defineComponent, h} from "@vue/runtime-core";
+import GamePage from "./views/GamePage";
+import {defineComponent, h, computed, ref} from "@vue/runtime-core";
 
 export default defineComponent({
-  render() {
-    // create vnode
-    const vnode = h('container', [h(StartPage)]) // 调用 createElement
+  setup(props, context) {
+    const currentPageName = ref('StartPage');
+    const currentPage = computed(() => {
+      switch (currentPageName.value) {
+        case 'StartPage':
+          return StartPage;
+        case 'GamePage':
+          return GamePage;
+      }
+    })
+    return {
+      currentPageName,
+      currentPage
+    }
+  },
+  render(context) {
+    const vnode = h('container', [
+      h(context.currentPage, {
+        onPageChange(e) {
+          context.currentPageName = e
+        }
+      })
+    ]) // 调用 createElement
     console.log(vnode);
     return vnode
   }
