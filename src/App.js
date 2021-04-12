@@ -2,6 +2,7 @@
 
 import StartPage from "./views/StartPage";
 import GamePage from "./views/GamePage";
+import EndPage from "./views/EndPage";
 import {defineComponent, h, computed, ref} from "@vue/runtime-core";
 
 export default defineComponent({
@@ -14,6 +15,8 @@ export default defineComponent({
           return StartPage;
         case 'GamePage':
           return GamePage;
+        case 'EndPage':
+          return EndPage;
       }
     })
     return {
@@ -29,7 +32,7 @@ export default defineComponent({
         }
       })
     ]) // 调用 createElement
-    console.log(vnode);
+    // console.log(vnode);
     return vnode
   }
 })

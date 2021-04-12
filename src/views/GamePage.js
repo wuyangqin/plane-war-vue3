@@ -1,28 +1,36 @@
-import {defineComponent, h, reactive} from "@vue/runtime-core";
+import {defineComponent, h, reactive, onMounted, onUnmounted} from "@vue/runtime-core";
 import Map from "../components/Map";
 import Plane from "../components/plane/Plane";
 import Enemy from "../components/enemy/Enemy";
+import {hitTestObject} from "../utils/hitTest";
 import {game} from "../Game";
 import movePlane from '../components/plane/movePlane';
 
 export default defineComponent({
-  setup() {
-    const {planeX, planeY} = movePlane()
-    const planeInfo = reactive({x: planeX, y: planeY})
+  setup(props, context) {
+    const {planeX, planeY, planeWidth, planeHeight} = movePlane()
+    const planeInfo = reactive({x: planeX, y: planeY, width: planeWidth, height: planeHeight})
     
     // 敌方飞机
     const {enemyPlanes} = useCreateEnemyPlanes()
     
-    // const enemySpeed = Math.random()*10
-    game.ticker.add(() => {
+    const gameLoop = function () {
       enemyPlanes.forEach(enemyInfo => {
-        enemyInfo.y +=3
-        // enemyInfo.x = Math.random()*700
+        enemyInfo.y += 3
+        // 碰撞检测
+        if (hitTestObject(enemyInfo, planeInfo)) {
+          console.log('hit');
+          // 游戏结束
+          context.emit('pageChange', 'EndPage')
+        }
       })
-      // console.log(1);
-      // console.log(delta);
+    }
+    onMounted(() => {
+      game.ticker.add(gameLoop)
     })
-    
+    onUnmounted(() => {
+      game.ticker.remove(gameLoop)
+    })
     return {
       planeInfo,
       enemyPlanes
@@ -42,10 +50,13 @@ export default defineComponent({
   }
 })
 
-function useCreateEnemyPlanes(){
-  const enemyPlanes =reactive([
-    {x: 50, y: 0, scale: {x: 0.5, y: 0.5}},
-    {x: 100, y: 10, scale: {x: 0.8, y: 0.8}},
+function useCreateEnemyPlanes() {
+  const enemyWidth = 308
+  const enemyHeight = 200
+  const enemyPlanes = reactive([
+    {x: 50, y: 0, scale: {x: 1, y: 1}, width: enemyWidth, height: enemyHeight},
+    // {x: 50, y: 0, scale: {x: 0.5, y: 0.5}, width: enemyWidth * .5, height: enemyHeight * .5},
+    // {x: 100, y: 10, scale: {x: 0.8, y: 0.8}},
   ])
   return {enemyPlanes}
 }

@@ -5,8 +5,8 @@ import {game} from "../../Game";
 export default function movePlane() {
   const viewWidth = 750
   const viewHeight = 1080
-  const planeWidth = 275
-  const planeHeight = 400
+  const planeWidth = 258
+  const planeHeight = 364
   const maxX = viewWidth - planeWidth
   const maxY = viewHeight - planeHeight
   
@@ -63,7 +63,9 @@ export default function movePlane() {
   })
   return {
     planeX,
-    planeY
+    planeY,
+    planeWidth,
+    planeHeight,
   }
   
 }
