@@ -1,14 +1,13 @@
-import {defineComponent, h, ref} from "@vue/runtime-core";
-import movePlane from './movePlane'
+import {defineComponent, h, ref,toRefs} from "@vue/runtime-core";
 import planeImg from '../../assets/plane.png'
 
-
 export default defineComponent({
+  props:['x','y'],
   setup(props, context) {
-    const { planeX, planeY } = movePlane()
+    const {x,y}= toRefs(props)
     return {
-      planeX,
-      planeY
+      x,
+      y
     }
   },
   render(context) {
@@ -18,8 +17,8 @@ export default defineComponent({
         h('sprite',
           {
             texture: planeImg,
-            x: context.planeX,
-            y: context.planeY
+            x: context.x,
+            y: context.y
           }
         ),
       ]
