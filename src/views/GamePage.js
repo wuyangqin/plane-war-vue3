@@ -6,6 +6,7 @@ import Bullet from "../components/bullet/Bullet";
 import {hitTestObject} from "../utils/hitTest";
 import {game} from "../Game";
 import movePlane from '../components/plane/movePlane';
+import {moveEnemyPlane} from "../components/enemy/moveEnemyPlanes";
 
 export default defineComponent({
   setup(props, context) {
@@ -83,8 +84,8 @@ function useCreateBullets() {
 
 function useFighting(enemyPlanes, bullets, planeInfo) {
   const gameLoop = function () {
+    moveEnemyPlane(enemyPlanes)
     enemyPlanes.forEach(enemy => {
-      enemy.y += 3
       // 敌方和我方飞机碰撞检测
       if (hitTestObject(enemy, planeInfo)) {
         // console.log('hit');
