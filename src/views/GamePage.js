@@ -1,4 +1,4 @@
-import {defineComponent, h, reactive, onMounted, onUnmounted, ref} from "@vue/runtime-core";
+import {defineComponent, h, reactive, onMounted, onUnmounted} from "@vue/runtime-core";
 import Map from "../components/Map";
 import Plane from "../components/plane/Plane";
 import Enemy from "../components/enemy/Enemy";
@@ -9,35 +9,14 @@ import movePlane from '../components/plane/movePlane';
 
 export default defineComponent({
   setup(props, context) {
-    const {planeX, planeY, planeWidth, planeHeight} = movePlane()
-    const planeInfo = reactive({x: planeX, y: planeY, width: planeWidth, height: planeHeight})
-    
+    // 我方飞机
+    const {planeInfo} = userCreatePlane()
     // 敌方飞机
     const {enemyPlanes} = useCreateEnemyPlanes()
-    
     // 子弹
     const {bullets, onShootBullet} = useCreateBullets()
-    
-    const gameLoop = function () {
-      enemyPlanes.forEach(enemyInfo => {
-        enemyInfo.y += 3
-        // 碰撞检测
-        if (hitTestObject(enemyInfo, planeInfo)) {
-          // console.log('hit');
-          // 游戏结束
-          // context.emit('pageChange', 'EndPage')
-        }
-      })
-      bullets.forEach(bulletInfo => {
-        bulletInfo.y -= 10
-      })
-    }
-    onMounted(() => {
-      game.ticker.add(gameLoop)
-    })
-    onUnmounted(() => {
-      game.ticker.remove(gameLoop)
-    })
+    // 战斗
+    useFighting(enemyPlanes, bullets, planeInfo)
     return {
       planeInfo,
       enemyPlanes,
@@ -67,10 +46,15 @@ export default defineComponent({
       ),
       ...createEnemyPlanes(),
       ...createBullets(),
-    
     ])
   }
 })
+
+function userCreatePlane() {
+  const {planeX, planeY, planeWidth, planeHeight} = movePlane()
+  const planeInfo = reactive({x: planeX, y: planeY, width: planeWidth, height: planeHeight})
+  return {planeInfo}
+}
 
 function useCreateEnemyPlanes() {
   const enemyWidth = 308
@@ -88,13 +72,42 @@ function useCreateBullets() {
   const height = 99
   const bullets = reactive([])
   const onShootBullet = (info) => {
-    const {x, y} = info
     bullets.push({
-      x: x + 100,
-      y,
+      ...info,
       width,
       height
     })
   }
   return {bullets, onShootBullet}
+}
+
+function useFighting(enemyPlanes, bullets, planeInfo) {
+  const gameLoop = function () {
+    enemyPlanes.forEach(enemy => {
+      enemy.y += 3
+      // 敌方和我方飞机碰撞检测
+      if (hitTestObject(enemy, planeInfo)) {
+        // console.log('hit');
+        // 游戏结束
+        // context.emit('pageChange', 'EndPage')
+      }
+    })
+    bullets.forEach((bullet, bulletIndex) => {
+      bullet.y -= 10
+      enemyPlanes.forEach((enemy, enemyIndex) => {
+        // 子弹和敌方碰撞检测
+        if (hitTestObject(enemy, bullet)) {
+          // 敌方飞机和子弹消失
+          bullets.splice(bulletIndex, 1);
+          enemyPlanes.splice(enemyIndex, 1);
+        }
+      })
+    })
+  }
+  onMounted(() => {
+    game.ticker.add(gameLoop)
+  })
+  onUnmounted(() => {
+    game.ticker.remove(gameLoop)
+  })
 }
