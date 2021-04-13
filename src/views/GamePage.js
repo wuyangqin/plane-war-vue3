@@ -1,7 +1,8 @@
-import {defineComponent, h, reactive, onMounted, onUnmounted} from "@vue/runtime-core";
+import {defineComponent, h, reactive, onMounted, onUnmounted, ref} from "@vue/runtime-core";
 import Map from "../components/Map";
 import Plane from "../components/plane/Plane";
 import Enemy from "../components/enemy/Enemy";
+import Bullet from "../components/bullet/Bullet";
 import {hitTestObject} from "../utils/hitTest";
 import {game} from "../Game";
 import movePlane from '../components/plane/movePlane';
@@ -14,15 +15,21 @@ export default defineComponent({
     // 敌方飞机
     const {enemyPlanes} = useCreateEnemyPlanes()
     
+    // 子弹
+    const {bullets, onShootBullet} = useCreateBullets()
+    
     const gameLoop = function () {
       enemyPlanes.forEach(enemyInfo => {
         enemyInfo.y += 3
         // 碰撞检测
         if (hitTestObject(enemyInfo, planeInfo)) {
-          console.log('hit');
+          // console.log('hit');
           // 游戏结束
-          context.emit('pageChange', 'EndPage')
+          // context.emit('pageChange', 'EndPage')
         }
+      })
+      bullets.forEach(bulletInfo => {
+        bulletInfo.y -= 10
       })
     }
     onMounted(() => {
@@ -33,7 +40,9 @@ export default defineComponent({
     })
     return {
       planeInfo,
-      enemyPlanes
+      enemyPlanes,
+      bullets,
+      onShootBullet
     };
   },
   render(context) {
@@ -42,10 +51,23 @@ export default defineComponent({
         return h(Enemy, {x: info.x, y: info.y, scale: info.scale})
       })
     }
+    const createBullets = () => {
+      return context.bullets.map(info => {
+        return h(Bullet, {x: info.x, y: info.y})
+      })
+    }
     return h('container', [
       h(Map),
-      h(Plane, {x: context.planeInfo.x, y: context.planeInfo.y}),
-      ...createEnemyPlanes()
+      h(Plane,
+        {
+          x: context.planeInfo.x,
+          y: context.planeInfo.y,
+          onShootBullet: context.onShootBullet,
+        },
+      ),
+      ...createEnemyPlanes(),
+      ...createBullets(),
+    
     ])
   }
 })
@@ -61,3 +83,18 @@ function useCreateEnemyPlanes() {
   return {enemyPlanes}
 }
 
+function useCreateBullets() {
+  const width = 61
+  const height = 99
+  const bullets = reactive([])
+  const onShootBullet = (info) => {
+    const {x, y} = info
+    bullets.push({
+      x: x + 100,
+      y,
+      width,
+      height
+    })
+  }
+  return {bullets, onShootBullet}
+}
