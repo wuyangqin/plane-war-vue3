@@ -1,10 +1,11 @@
 import {ref} from '@vue/runtime-core'
 import {keyboard} from "../../utils/keyboard";
 import {game} from "../../Game";
+import {stage} from "../../config";
 
 export default function movePlane() {
-  const viewWidth = 750
-  const viewHeight = 1080
+  const viewWidth = stage.width;
+  const viewHeight = stage.height;
   const planeWidth = 258
   const planeHeight = 364
   const maxX = viewWidth - planeWidth
@@ -15,7 +16,7 @@ export default function movePlane() {
   
   const speed = 10
   const moveHandler = {
-    left:()=>{
+    left: () => {
       planeX.value -= speed
       if (planeX.value <= 0) {
         planeX.value = 0
@@ -27,13 +28,13 @@ export default function movePlane() {
         planeX.value = maxX
       }
     },
-    up:() => {
+    up: () => {
       planeY.value -= speed
       if (planeY.value <= 0) {
         planeY.value = 0
       }
     },
-    down:() => {
+    down: () => {
       planeY.value += speed
       if (planeY.value >= maxY) {
         planeY.value = maxY
@@ -46,13 +47,13 @@ export default function movePlane() {
     right = keyboard(39),
     down = keyboard(40);
   const keyboardEvents = [
-    {key:'left',left},
-    {key:'right',right},
-    {key:'up',up},
-    {key:'down',down},
+    {key: 'left', left},
+    {key: 'right', right},
+    {key: 'up', up},
+    {key: 'down', down},
   ]
   keyboardEvents.forEach(event => {
-    const { key } = event
+    const {key} = event
     const currentEvent = event[key]
     currentEvent.press = () => {
       game.ticker.add(moveHandler[key])
