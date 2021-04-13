@@ -5,6 +5,7 @@ import Enemy from "../components/enemy/Enemy";
 import Bullet from "../components/bullet/Bullet";
 import {hitTestObject} from "../utils/hitTest";
 import {game} from "../Game";
+import {stage} from "../config";
 import movePlane from '../components/plane/movePlane';
 import {moveEnemyPlane} from "../components/enemy/moveEnemyPlanes";
 
@@ -13,11 +14,11 @@ export default defineComponent({
     // 我方飞机
     const {planeInfo} = userCreatePlane()
     // 敌方飞机
-    const {enemyPlanes} = useCreateEnemyPlanes()
+    const {enemyPlanes} = useEnemyPlanes()
     // 子弹
     const {bullets, onShootBullet} = useCreateBullets()
     // 战斗
-    useFighting(enemyPlanes, bullets, planeInfo)
+    useFighting(enemyPlanes, bullets, planeInfo, context)
     return {
       planeInfo,
       enemyPlanes,
@@ -57,16 +58,35 @@ function userCreatePlane() {
   return {planeInfo}
 }
 
-function useCreateEnemyPlanes() {
-  const enemyWidth = 308
-  const enemyHeight = 200
-  const enemyPlanes = reactive([
-    {x: 50, y: 0, scale: {x: 1, y: 1}, width: enemyWidth, height: enemyHeight},
-    // {x: 50, y: 0, scale: {x: 0.5, y: 0.5}, width: enemyWidth * .5, height: enemyHeight * .5},
-    // {x: 100, y: 10, scale: {x: 0.8, y: 0.8}},
-  ])
-  return {enemyPlanes}
-}
+// 敌机
+const useEnemyPlanes = () => {
+  const width = 308
+  const height = 200
+  //生产敌机
+  const createEnemyPlaneData = (x, scale) => {
+    return {
+      x,
+      y: -200,
+      scale: {x: scale, y: scale},
+      width: width * scale,
+      height: height * scale
+    };
+  };
+  const randomCreateEnemyPlane = () => {
+    const x = Math.floor((1 + stage.width) * Math.random());
+    const scale = Math.random() * (.8 - .5) + .5
+    enemyPlanes.push(createEnemyPlaneData(x, scale));
+  }
+  
+  const enemyPlanes = reactive([]);
+  
+  randomCreateEnemyPlane();
+  setInterval(() => {
+    randomCreateEnemyPlane();
+  }, 1500);
+  
+  return {enemyPlanes};
+};
 
 function useCreateBullets() {
   const width = 61
@@ -82,15 +102,14 @@ function useCreateBullets() {
   return {bullets, onShootBullet}
 }
 
-function useFighting(enemyPlanes, bullets, planeInfo) {
+function useFighting(enemyPlanes, bullets, planeInfo, context) {
   const gameLoop = function () {
     moveEnemyPlane(enemyPlanes)
     enemyPlanes.forEach(enemy => {
       // 敌方和我方飞机碰撞检测
       if (hitTestObject(enemy, planeInfo)) {
-        // console.log('hit');
         // 游戏结束
-        // context.emit('pageChange', 'EndPage')
+        context.emit('pageChange', 'EndPage')
       }
     })
     bullets.forEach((bullet, bulletIndex) => {

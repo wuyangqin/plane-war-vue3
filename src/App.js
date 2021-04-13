@@ -7,8 +7,8 @@ import {defineComponent, h, computed, ref} from "@vue/runtime-core";
 
 export default defineComponent({
   setup(props, context) {
-    // const currentPageName = ref('StartPage');
-    const currentPageName = ref('GamePage');
+    const currentPageName = ref('StartPage');
+    // const currentPageName = ref('GamePage');
     const currentPage = computed(() => {
       switch (currentPageName.value) {
         case 'StartPage':
