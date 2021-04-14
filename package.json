@@ -4,16 +4,21 @@
   "main": "main.js",
   "license": "MIT",
   "scripts": {
-    "build": "webpack",
-    "serve": "webpack-dev-server"
+    "build": "set NODE_ENV=production && webpack --mode=production",
+    "dev":"set NODE_ENV=development && webpack --watch --mode=development",
+    "start": "serve .",
+    "test": "jest"
   },
   "devDependencies": {
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2",
     "@vue/runtime-core": "^3.0.11",
     "file-loader": "^6.2.0",
+    "html-webpack-plugin": "^4.3.0",
     "pixi.js": "^6.0.2",
     "webpack-dev-server": "^3.11.2"
   }

@@ -1,28 +1,31 @@
-const path = require('path')
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require("path");
+const base = process.env.NODE_ENV === "production" ? "https://wuyangqin.github.io/plane-war-dist/" : "./";
+
 module.exports = {
-  entry: path.resolve(__dirname, './main.js'),
+  devtool: "source-map",
+  mode: "development",
+  entry: path.resolve(__dirname, "./main.js"),
   output: {
-    filename: 'build.js',
-    path: path.resolve(__dirname, './dist'),
+    publicPath: base,
+    filename: "build.js",
+    path: path.resolve(__dirname, "./dist"),
   },
-  devtool: 'source-map',
-  devServer: {
-    contentBase: path.resolve(__dirname, './dist')
-  },
-  module:{
-    rules:[
+  module: {
+    rules: [
       {
-        test:/\.(png|jpe?g|gif)$/i,
-        use:[
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
           {
             loader: "file-loader",
-            options:{
-              outputPath:"assets/",
-              publicPath:""
-            }
-          }
-        ]
-      }
-    ]
-  }
-}
+            options: {
+              outputPath: "images",
+              publicPath: base + "/images",
+            },
+          },
+        ],
+      },
+    ],
+  },
+  plugins: [new HtmlWebpackPlugin()],
+};
